@@ -7,5 +7,5 @@
 - @chatscope/chat-ui-kit-react
 
 
-개인 Open AI API Key를 .env에 입력하시면 됩니다
+개인 Open AI API Key를 .env에 VITE_API_KEY로 입력하시면 됩니다
 - https://stackblitz.com/~/github.com/ZenuCode/impolite-chatbot
