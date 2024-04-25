@@ -1,8 +1,7 @@
-# React + Vite
+# 불친절한 챗봇
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+물어보거나 대화하면 답변을 불친절하게 하는 Chatbot
 
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+사용한 기술
+- ChatGPT API
+- @chatscope/chat-ui-kit-react
