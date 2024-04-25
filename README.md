@@ -12,3 +12,17 @@
 
 
 ![Screenshot_1](https://github.com/ZenuCode/impolite-chatbot/assets/100235605/f6f14694-00b2-4e6c-96c8-a80f48976a11)
+
+
+
+# Impolite Chatbot
+
+Chatbot that replies in a disrespectful manner
+
+Used
+- ChatGPT API
+- @chatscope/chat-ui-kit-react
+
+Can be used with the stackblitz link above by doing:
+- Using your personal Open AI API Key
+- Writing the API Key within the .env file with variable name VITE_API_KEY
