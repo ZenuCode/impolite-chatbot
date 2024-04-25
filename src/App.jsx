@@ -1,96 +1,97 @@
-import { useState } from "react";
-import "./App.css";
+import { useState } from 'react'
+import './App.css'
+import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
+import { MainContainer, ChatContainer, MessageList, Message, MessageInput, TypingIndicator } from '@chatscope/chat-ui-kit-react';
+
+const API_KEY = import.meta.env.VITE_API_KEY;
+const systemMessage = {
+  "role": "system", "content": "Explain things impolitely without using swear words, slang or cuss words."
+}
 
 function App() {
-  const [isTyping, setIsTyping] = useState(false);
   const [messages, setMessages] = useState([
     {
       message: "Hello, I'm ChatGPT! Ask me anything!",
-      sender: "ChatGPT",
-    },
+      sentTime: "just now",
+      sender: "ChatGPT"
+    }
   ]);
+  const [isTyping, setIsTyping] = useState(false);
 
   const handleSend = async (message) => {
     const newMessage = {
       message,
-      direction: "outgoing",
-      sender: "user",
+      direction: 'outgoing',
+      sender: "user"
     };
 
     const newMessages = [...messages, newMessage];
-
+    
     setMessages(newMessages);
     setIsTyping(true);
-    await processMessage(newMessages);
+    await processMessageToChatGPT(newMessages);
   };
 
-  const processMessage = async (userMessage) => {
-    try {
-      const response = await fetch(
-        "https://api.openai.com/v1/chat/completions",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: "Bearer " + import.meta.env.VITE_API_KEY,
-          },
-          body: JSON.stringify({
-            model: "gpt-3.5-turbo",
-            messages: [...userMessage],
-          }),
-        }
-      );
+  async function processMessageToChatGPT(chatMessages) { // messages is an array of messages
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch data: " + response.statusText);
+    let apiMessages = chatMessages.map((messageObject) => {
+      let role = "";
+      if (messageObject.sender === "ChatGPT") {
+        role = "assistant";
+      } else {
+        role = "user";
       }
+      return { role: role, content: messageObject.message}
+    });
 
-      const responseData = await response.json();
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        {
-          role: "assistant",
-          content: responseData.choices[0].message.content,
-        },
-      ]);
-    } catch (error) {
-      console.error("Error while fetching data:", error);
+    const apiRequestBody = {
+      "model": "gpt-3.5-turbo",
+      "messages": [
+        systemMessage,
+        ...apiMessages 
+      ]
     }
-  };
+
+    await fetch("https://api.openai.com/v1/chat/completions", 
+    {
+      method: "POST",
+      headers: {
+        "Authorization": "Bearer " + API_KEY,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(apiRequestBody)
+    }).then((data) => {
+      return data.json();
+    }).then((data) => {
+      console.log(data);
+      setMessages([...chatMessages, {
+        message: data.choices[0].message.content,
+        sender: "ChatGPT"
+      }]);
+      setIsTyping(false);
+    });
+  }
 
   return (
-    <>
-      <div>
-        {messages.map((message, index) => (
-          <div key={index}>
-            <h3>{message.sender}</h3>
-            <p>{message.message}</p>
-          </div>
-        ))}
-        {isTyping && <p>Bot is typing...</p>}
+    <div className="App">
+      <div style={{ position:"relative", height: "800px", width: "700px"  }}>
+        <MainContainer>
+          <ChatContainer>       
+            <MessageList 
+              scrollBehavior="smooth" 
+              typingIndicator={isTyping ? <TypingIndicator content="ChatGPT is typing" /> : null}
+            >
+              {messages.map((message, i) => {
+                console.log(message)
+                return <Message key={i} model={message} />
+              })}
+            </MessageList>
+            <MessageInput placeholder="Type message here" onSend={handleSend} />        
+          </ChatContainer>
+        </MainContainer>
       </div>
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          const input = e.target.input.value;
-          if (input.trim() !== "") {
-            handleSend(input);
-            e.target.reset();
-          }
-        }}
-      >
-        <input
-          type="text"
-          name="input"
-          placeholder="Type your message..."
-          disabled={isTyping}
-        />
-        <button type="submit" disabled={isTyping}>
-          Send
-        </button>
-      </form>
-    </>
-  );
+    </div>
+  )
 }
 
-export default App;
+export default App
